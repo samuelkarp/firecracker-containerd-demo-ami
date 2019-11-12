@@ -1,0 +1,9 @@
+[submodule "_submodules/firecracker-containerd"]
+	path = _submodules/firecracker-containerd
+	url = https://github.com/firecracker-microvm/firecracker-containerd/
+[submodule "_submodules/amazon-ecr-containerd-resolver"]
+	path = _submodules/amazon-ecr-containerd-resolver
+	url = https://github.com/awslabs/amazon-ecr-containerd-resolver/
+[submodule "_submodules/demo-magic"]
+	path = _submodules/demo-magic
+	url = https://github.com/paxtonhare/demo-magic
