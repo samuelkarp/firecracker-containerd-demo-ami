@@ -8,7 +8,10 @@ set -ex
 DIR=/var/lib/firecracker-containerd/snapshotter/devmapper
 POOL=demo
 
+sudo modprobe loop
 mkdir -p "${DIR}"
+[[ -f "${DIR}/data" ]] || truncate --size 10G "${DIR}/data"
+[[ -f "${DIR}/metadata" ]] truncate --size 1G "${DIR}/data"
 
 DATADEV="$(losetup --output NAME --noheadings --associated ${DIR}/data)"
 if [[ -z "${DATADEV}" ]]; then
