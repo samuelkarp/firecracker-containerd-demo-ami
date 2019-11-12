@@ -13,7 +13,7 @@ ami-stamp: files.tar.gz packer.json
 
 files.tar.gz: firecracker-containerd fc-rootfs fc-config kernel ecr-resolver demo
 	tree files
-	tar cvzf files.tar.gz -C files .
+	tar cvzf $@ -C files .
 
 .PHONY: firecracker-containerd
 firecracker-containerd: firecracker-containerd-stamp
@@ -28,7 +28,7 @@ files/var/lib/firecracker-containerd/runtime/default-rootfs.img: $(SUBMODULES)/f
 	$(INSTALL) -m644 -T $(SUBMODULES)/firecracker-containerd/tools/image-builder/rootfs.img files/var/lib/firecracker-containerd/runtime/default-rootfs.img
 
 .PHONY: fc-config
-fc-config: files/etc/containerd/{config.toml,firecracker-runtime.json} files/etc/systemd/system/firecracker-containerd.service files/usr/local/libexec/devmapper-setup.sh
+fc-config: files/etc/containerd/config.toml files/etc/containerd/firecracker-runtime.json files/etc/systemd/system/firecracker-containerd.service files/usr/local/libexec/devmapper-setup.sh
 files/etc/containerd/{config.toml,firecracker-runtime.json}: containerd-config.toml firecracker-runtime.json
 	$(INSTALL) -m644 -T containerd-config.toml files/etc/containerd/config.toml
 	$(INSTALL) -m644 -T firecracker-runtime.json files/etc/containerd/firecracker-runtime.json
@@ -44,13 +44,13 @@ files/var/lib/firecracker-containerd/runtime/hello-vmlinux.bin:
 	curl -fsSL -o files/var/lib/firecracker-containerd/runtime/hello-vmlinux.bin https://s3.amazonaws.com/spec.ccfc.min/img/hello/kernel/hello-vmlinux.bin
 
 .PHONY: ecr-resolver
-ecr-resolver: files/usr/local/libexec/ecr-{pull,push,copy}
+ecr-resolver: files/usr/local/libexec/ecr-pull files/usr/local/libexec/ecr-push files/usr/local/libexec/ecr-copy
 files/usr/local/libexec/ecr-{pull,push,copy}: $(SUBMODULES)/amazon-ecr-containerd-resolver
 	$(MAKE) -C $(SUBMODULES)/amazon-ecr-containerd-resolver
 	$(INSTALL_EXE) -t files/usr/local/libexec $(SUBMODULES)/amazon-ecr-containerd-resolver/bin/ecr-*
 
 .PHONY: demo
-demo: demo-magic files/usr/local/bin/{fctr,ecr-pull} files/home/admin/demo.sh
+demo: demo-magic files/usr/local/bin/fctr files/usr/local/bin/ecr-pull files/home/admin/demo.sh
 files/usr/local/bin/{fctr,ecr-pull}:
 	$(INSTALL_EXE) -t files/usr/local/bin fctr ecr-pull
 files/home/admin/demo.sh:
