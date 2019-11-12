@@ -1,0 +1,2 @@
+#!/bin/bash
+sudo CONTAINERD_SNAPSHOTTER=devmapper firecracker-ctr --address /run/firecracker-containerd/containerd.sock "$@"

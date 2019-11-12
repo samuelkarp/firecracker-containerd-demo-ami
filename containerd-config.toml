@@ -1,0 +1,15 @@
+disabled_plugins = ["cri"]
+
+root = "/var/lib/firecracker-containerd/containerd"
+state = "/run/firecracker-containerd"
+
+[grpc]
+  address = "/run/firecracker-containerd/containerd.sock"
+
+[plugins]
+  [plugins.devmapper]
+    pool_name = "demo"
+    base_image_size = "10GB"
+
+[debug]
+  level = "debug"

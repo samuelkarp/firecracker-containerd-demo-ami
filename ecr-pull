@@ -1,0 +1,2 @@
+#!/bin/bash
+sudo CONTAINERD_SNAPSHOTTER=devmapper CONTAINERD_ADDRESS=/run/firecracker-containerd/containerd.sock ECR_PULL_PARALLEL=4 /usr/local/libexec/ecr-pull "$@"
