@@ -27,7 +27,7 @@
         "sudo tar xvzf /tmp/files.tar.gz -C /",
         "sudo rm /tmp/files.tar.gz",
         "sudo DEBIAN_FRONTEND=noninteractive apt-get update",
-        "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y pv bc",
+        "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y pv bc psmisc",
         "sudo rm -rf /etc/ssh/ssh_host* /home/admin/.ssh/authorized_keys /var/lib/cloud/{data,instance,instances,sem}",
         "sudo chown root:root /home",
         "sudo chown --recursive admin:admin /home/admin",
