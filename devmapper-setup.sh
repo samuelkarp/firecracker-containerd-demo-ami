@@ -10,8 +10,8 @@ POOL=demo
 
 sudo modprobe loop
 mkdir -p "${DIR}"
-[[ -f "${DIR}/data" ]] || truncate --size 10G "${DIR}/data"
-[[ -f "${DIR}/meta" ]] || truncate --size 1G "${DIR}/meta"
+[[ -f "${DIR}/data" ]] || truncate --size 256G "${DIR}/data"
+[[ -f "${DIR}/meta" ]] || truncate --size 10G "${DIR}/meta"
 
 DATADEV="$(losetup --output NAME --noheadings --associated ${DIR}/data)"
 if [[ -z "${DATADEV}" ]]; then
