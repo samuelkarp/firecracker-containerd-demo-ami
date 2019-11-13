@@ -63,9 +63,9 @@ ecr-resolver-stamp: $(ECR_SOURCES)
 
 .PHONY: demo
 demo: demo-magic files/usr/local/bin/fctr files/usr/local/bin/ecr-pull files/home/admin/demo.sh
-files/usr/local/bin/fctr files/usr/local/bin/ecr-pull:
+files/usr/local/bin/fctr files/usr/local/bin/ecr-pull: fctr ecr-pull
 	$(INSTALL_EXE) -t files/usr/local/bin fctr ecr-pull
-files/home/admin/demo.sh:
+files/home/admin/demo.sh: demo.sh
 	$(INSTALL) -m777 -t files/home/admin demo.sh
 
 .PHONY: demo-magic
