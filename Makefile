@@ -20,6 +20,8 @@ FC_BINS=containerd-shim-aws-firecracker firecracker firecracker-containerd firec
 firecracker-containerd: $(patsubst %, files/usr/local/bin/%, $(FC_BINS)) firecracker-containerd-stamp
 $(patsubst %, files/usr/local/bin/%, $(FC_BINS)): firecracker-containerd-stamp
 	INSTALLROOT=$(PWD)/files/usr/local fakeroot $(MAKE) -C $(SUBMODULES)/firecracker-containerd install install-firecracker
+	# Get rid of unused binaries
+	rm $(patsubst %, files/usr/local/bin/%, jailer devmapper_snapshotter naive_snapshotter)
 
 FC_SOURCES=$(shell find $(SUBMODULES)/firecracker-containerd -type d ! -perm -g+r,u+r,o+r -prune -o -print | grep -v /rootfs/ | grep -v /target/ | grep -v /files_debootstrap/)
 firecracker-containerd-stamp: $(FC_SOURCES)
