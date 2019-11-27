@@ -1,3 +1,4 @@
 *-stamp
 /files
 /files.tar.gz
+/containerd-shim*

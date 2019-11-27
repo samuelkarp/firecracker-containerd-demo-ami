@@ -11,15 +11,41 @@ ami-stamp: files.tar.gz packer.json
 	packer build packer.json
 	touch $@
 
-files.tar.gz: firecracker-containerd fc-rootfs fc-config kernel ecr-resolver demo
+files.tar.gz: containerd-shims firecracker-containerd fc-rootfs fc-config kernel ecr-resolver demo
 	tree files
 	tar cvzf $@ -C files .
 
-FC_BINS=containerd-shim-aws-firecracker firecracker firecracker-containerd firecracker-ctr
+# The containerd shims are used for running non-Firecracker, standard Linux
+# containers with runc.
+# This is a bit of a hack to get the shims built properly.  Our build of
+# containerd has dependencies that are out of sync with upstream.  Rather than
+# trying to put them in sync, we can leverage "go install" to build the shims in
+# the context of *our* dependencies.
+# The downside of this is that it mutates go.mod/go.sum in our submodule.  We
+# can get around that by moving/copying it each time...
+CONTAINERD_BINS=containerd-shim containerd-shim-runc-v1 containerd-shim-runc-v2
+CONTAINERD_SOURCE_DIR=$(SUBMODULES)/containerd/src/github.com/containerd/containerd
+.PHONY: containerd-shims
+containerd-shims: $(patsubst %, files/usr/local/bin/%, $(CONTAINERD_BINS))
+$(patsubst %, files/usr/local/bin/%, $(CONTAINERD_BINS)): firecracker-containerd-stamp
+	cp $(SUBMODULES)/firecracker-containerd/go.mod $(SUBMODULES)/firecracker-containerd/go.mod.backup
+	cp $(SUBMODULES)/firecracker-containerd/go.sum $(SUBMODULES)/firecracker-containerd/go.sum.backup
+	cd $(SUBMODULES)/firecracker-containerd; GOBIN=$(CURDIR) go install -tags=no_cri github.com/containerd/containerd/cmd/$(patsubst files/usr/local/bin/%,%, $@)
+	mv $(SUBMODULES)/firecracker-containerd/go.mod.backup $(SUBMODULES)/firecracker-containerd/go.mod
+	mv $(SUBMODULES)/firecracker-containerd/go.sum.backup $(SUBMODULES)/firecracker-containerd/go.sum
+	$(INSTALL_EXE) -T $(patsubst files/usr/local/bin/%,%, $@) $@
+
+.PHONY: clean-containerd-shims
+clean-containerd-shims:
+	rm -f $(CONTAINERD_BINS) $(patsubst %, files/usr/local/bin/%, $(CONTAINERD_BINS))
+
+FC_BINS=containerd-shim-aws-firecracker firecracker firecracker-containerd firecracker-ctr runc
 .PHONY: firecracker-containerd
 firecracker-containerd: $(patsubst %, files/usr/local/bin/%, $(FC_BINS)) firecracker-containerd-stamp
 $(patsubst %, files/usr/local/bin/%, $(FC_BINS)): firecracker-containerd-stamp
 	INSTALLROOT=$(PWD)/files/usr/local fakeroot $(MAKE) -C $(SUBMODULES)/firecracker-containerd install install-firecracker
+	fakeroot $(MAKE) -C $(SUBMODULES)/firecracker-containerd _submodules/runc/runc
+	DESTDIR=$(PWD)/files fakeroot $(MAKE) -C $(SUBMODULES)/firecracker-containerd/_submodules/runc install
 	# Get rid of unused binaries
 	rm $(patsubst %, files/usr/local/bin/%, jailer devmapper_snapshotter naive_snapshotter)
 
@@ -74,7 +100,7 @@ files/home/admin/.magic/demo-magic.sh: $(SUBMODULES)/demo-magic
 	$(INSTALL) -t files/home/admin/.magic $(SUBMODULES)/demo-magic/demo-magic.sh $(SUBMODULES)/demo-magic/license.txt
 
 .PHONY: clean
-clean:
+clean: clean-containerd-shims
 	$(MAKE) -C $(SUBMODULES)/firecracker-containerd clean
 	$(MAKE) -C $(SUBMODULES)/amazon-ecr-containerd-resolver clean
 	rm -rf files files.tar.gz
