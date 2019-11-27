@@ -88,11 +88,14 @@ ecr-resolver-stamp: $(ECR_SOURCES)
 	./submodule-stamp.sh $(SUBMODULES)/amazon-ecr-containerd-resolver $@
 
 .PHONY: demo
-demo: demo-magic files/usr/local/bin/fctr files/usr/local/bin/ecr-pull files/home/admin/demo.sh
-files/usr/local/bin/fctr files/usr/local/bin/ecr-pull: fctr ecr-pull
+demo: demo-magic files/usr/local/bin/fctr files/usr/local/bin/ecr-pull files/home/admin/kubecon.sh files/home/admin/reinvent.sh
+files/usr/local/bin/fctr files/usr/local/bin/ctr files/usr/local/bin/ecr-pull: fctr ecr-pull
 	$(INSTALL_EXE) -t files/usr/local/bin fctr ecr-pull
-files/home/admin/demo.sh: demo.sh
-	$(INSTALL) -m777 -t files/home/admin demo.sh
+	$(INSTALL_EXE) -T fctr files/usr/local/bin/ctr
+files/home/admin/kubecon.sh: kubecon.sh
+	$(INSTALL) -m777 -t files/home/admin kubecon.sh
+files/home/admin/reinvent.sh: reinvent.sh
+	$(INSTALL) -m777 -t files/home/admin reinvent.sh
 
 .PHONY: demo-magic
 demo-magic: files/home/admin/.magic/demo-magic.sh
