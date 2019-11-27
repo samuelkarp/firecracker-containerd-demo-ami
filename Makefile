@@ -43,9 +43,9 @@ FC_BINS=containerd-shim-aws-firecracker firecracker firecracker-containerd firec
 .PHONY: firecracker-containerd
 firecracker-containerd: $(patsubst %, files/usr/local/bin/%, $(FC_BINS)) firecracker-containerd-stamp
 $(patsubst %, files/usr/local/bin/%, $(FC_BINS)): firecracker-containerd-stamp
-	INSTALLROOT=$(PWD)/files/usr/local fakeroot $(MAKE) -C $(SUBMODULES)/firecracker-containerd install install-firecracker
+	INSTALLROOT=$(CURDIR)/files/usr/local fakeroot $(MAKE) -C $(SUBMODULES)/firecracker-containerd install install-firecracker
 	fakeroot $(MAKE) -C $(SUBMODULES)/firecracker-containerd _submodules/runc/runc
-	DESTDIR=$(PWD)/files fakeroot $(MAKE) -C $(SUBMODULES)/firecracker-containerd/_submodules/runc install
+	DESTDIR=$(CURDIR)/files fakeroot $(MAKE) -C $(SUBMODULES)/firecracker-containerd/_submodules/runc install
 	# Get rid of unused binaries
 	rm $(patsubst %, files/usr/local/bin/%, jailer devmapper_snapshotter naive_snapshotter)
 
@@ -88,7 +88,7 @@ ecr-resolver-stamp: $(ECR_SOURCES)
 	./submodule-stamp.sh $(SUBMODULES)/amazon-ecr-containerd-resolver $@
 
 .PHONY: demo
-demo: demo-magic files/usr/local/bin/fctr files/usr/local/bin/ecr-pull files/home/admin/kubecon.sh files/home/admin/reinvent.sh
+demo: demo-magic files/usr/local/bin/fctr files/usr/local/bin/ctr files/usr/local/bin/ecr-pull files/home/admin/kubecon.sh files/home/admin/reinvent.sh
 files/usr/local/bin/fctr files/usr/local/bin/ctr files/usr/local/bin/ecr-pull: fctr ecr-pull
 	$(INSTALL_EXE) -t files/usr/local/bin fctr ecr-pull
 	$(INSTALL_EXE) -T fctr files/usr/local/bin/ctr
