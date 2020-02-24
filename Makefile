@@ -40,7 +40,6 @@ files.tar.gz: containerd-shims firecracker-containerd fc-rootfs fc-config kernel
 # The downside of this is that it mutates go.mod/go.sum in our submodule.  We
 # can get around that by moving/copying it each time...
 CONTAINERD_BINS=containerd-shim containerd-shim-runc-v1 containerd-shim-runc-v2
-CONTAINERD_SOURCE_DIR=$(SUBMODULES)/containerd/src/github.com/containerd/containerd
 .PHONY: containerd-shims
 containerd-shims: $(patsubst %, files/usr/local/bin/%, $(CONTAINERD_BINS))
 $(patsubst %, files/usr/local/bin/%, $(CONTAINERD_BINS)): firecracker-containerd-stamp
@@ -63,7 +62,7 @@ $(patsubst %, files/usr/local/bin/%, $(FC_BINS)): firecracker-containerd-stamp
 	fakeroot $(MAKE) -C $(SUBMODULES)/firecracker-containerd _submodules/runc/runc
 	DESTDIR=$(CURDIR)/files fakeroot $(MAKE) -C $(SUBMODULES)/firecracker-containerd/_submodules/runc install
 	# Get rid of unused binaries
-	rm $(patsubst %, files/usr/local/bin/%, jailer devmapper_snapshotter naive_snapshotter)
+	rm $(patsubst %, files/usr/local/bin/%, jailer)
 
 FC_SOURCES=$(shell find $(SUBMODULES)/firecracker-containerd -type d ! -perm -g+r,u+r,o+r -prune -o -print | grep -v /rootfs/ | grep -v /target/ | grep -v /files_debootstrap/)
 firecracker-containerd-stamp: $(FC_SOURCES)
